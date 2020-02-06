@@ -1,0 +1,785 @@
+#como formatar uma coluna
+    COLUMN name FORMAT A8
+
+
+# mostra os usuário conectado.
+    SHOW user
+
+# Mostar o nome do container conectado.
+    SHOW con_name
+
+# Mostra o id do container conectado.
+    SHOW con_id
+
+# View "v$database"que conten todas as Database do serviço conectado.
+    SELECT name, cdb, con_id FROM v$database;
+    NAME        CDB    CON_ID
+    ---------   ---    ----------
+    ORCL        YES     0
+    SQL>
+
+
+# View "v$version" mostra a versão do oracle instalado.
+    SELECT banner FROM v$version;
+        BANNER
+        ------------------------------------------------------------------
+        Oracle Database 12c Enterprise Edition Release 12.2.0.1.0
+        - 64bit Production
+        PL/SQL Release 12.2.0.1.0 - Production
+        CORE 12.2.0.1.0 Production
+        TNS for Linux: Version 12.2.0.1.0 - Production
+        NLSRTL Version 12.2.0.1.0 - Production
+    SQL>
+
+
+# View "v$containers" que mostar os conteiner e os PDB do conteiner.
+    SQL> COLUMN name FORMAT A8
+    SQL> SELECT name, con_id FROM v$containers ORDER BY con_id;
+        NAME        CON_ID
+        --------    ----------
+        CDB$ROOT    1
+        PDB$SEED    2
+        PDB1        3
+
+# Mostra os PDB do CDB conectado.
+    SQL> SHOW pdbs;
+        CON_ID      CON_NAME                OPEN MODE       RESTRICTED
+        ------      ---------------------   ----------      ----------
+        2 PDB$SEED  READ                    ONLY            NO
+        3 PDB1      READ                    WRITE           NO
+    SQL>
+
+# View "cdb_pdbs" mostra as informações dos PDB.
+    SQL> COLUMN pdb_name FORMAT A8
+    SQL> SELECT pdb_name, status FROM cdb_pdbs ORDER BY 1;
+        PDB_NAME        STATUS
+        ----------      ------
+        PDB$SEED        NORMAL
+        PDB1            NORMAL
+    SQL>
+
+    Estado do APO. Valores possíveis:
+        -> NEW- O PDB nunca foi aberto desde que foi criado. Ele deve ser aberto no READ WRITEmodo para o Oracle executar o processamento necessário para concluir a integração do PDB no CDB e marcá-lo NORMAL. Um erro será gerado se for feita uma tentativa de abrir o PDB somente leitura.
+        -> NORMAL - O PDB está pronto para ser usado.
+        -> UNPLUGGED- O PDB foi desconectado. A única operação que pode ser executada nele é DROP PLUGGABLE DATABASE.
+        -> RELOCATING: O PDB está em processo de realocação para um CDB diferente.
+        -> RELOCATED: O PDB foi realocado para um CDB diferente.
+        -> REFRESHING: O PDB é um PDB de atualização.
+        -> UNDEFINED: O PDB está em um estado indefinido.
+        -> UNUSABLE- O PDB está sendo criado ou um erro irrecuperável foi encontrado durante sua criação. O PDB não pode ser aberto enquanto seu estado estiver definido como UNUSABLE. Se o PDB permanecer nesse estado devido a um erro encontrado durante sua criação, ele poderá ser descartado apenas. O log de alerta pode ser verificado para determinar se houve um erro durante a criação do PDB.
+
+
+# Lista todos o data files do CDB e dos PDB caso o usuário que executa tenha acesso.
+    SQL> COLUMN file_name FORMAT A50
+    SQL> COLUMN tablespace_name FORMAT A10
+    SQL> SELECT file_name, tablespace_name FROM cdb_data_files;
+        FILE_NAME                                               TABLESPACE
+        --------------------------------------------------      ----------
+        /u01/app/oracle/oradata/ORCL/users01.dbf                USERS
+        /u01/app/oracle/oradata/ORCL/undotbs01.dbf              UNDOTBS1
+        /u01/app/oracle/oradata/ORCL/system01.dbf               SYSTEM
+        /u01/app/oracle/oradata/ORCL/sysaux01.dbf               SYSAUX
+        /u01/app/oracle/oradata/ORCL/PDB1/undotbs01.dbf         UNDOTBS1
+        /u01/app/oracle/oradata/ORCL/PDB1/sysaux01.dbf          SYSAUX
+        /u01/app/oracle/oradata/ORCL/PDB1/system01.dbf          SYSTEM
+        /u01/app/oracle/oradata/ORCL/PDB1/users01.dbf           USERS
+    SQL>
+
+# View "v$datafile e v$tablespace" lista todas os TABLESPACE do CDB e dos PDB caso o usuário que executa tenha acesso.
+    SQL> COL name FORMAT A12
+    SQL> SELECT d.file#, ts.name, ts.ts#, ts.con_id FROM v$datafile d, v$tablespace ts WHERE d.ts#=ts.ts# AND d.con_id=ts.con_id ORDER BY 4;
+        FILE#       NAME                  TS#      CON_ID
+        ----------  ------------   ----------  ----------
+        3           SYSAUX                  1           1
+        1           SYSTEM                  0           1
+        4           UNDOTBS1                2           1
+        7           USERS                   4           1
+        5           SYSTEM                  0           2
+        6           SYSAUX                  1           2
+        8           UNDOTBS1                2           2
+        9           SYSTEM                  0           3
+        10          SYSAUX                  1           3
+        11          UNDOTBS1                2           3
+        12          USERS                   4           3
+        11          rows selected.
+    SQL>
+
+# Lista todos os data files do temp do CDB.
+    SQL> SELECT file_name, tablespace_name FROM cdb_temp_files;
+        FILE_NAME                                           TABLESPACE
+        --------------------------------------------------  ----------
+        /u01/app/oracle/oradata/ORCL/temp01.dbf             TEMP
+        /u01/app/oracle/oradata/ORCL/PDB1/temp01.dbf        TEMP
+    SQL>
+
+# View "v$logfile" lista todos os data file dos REDO LOG.
+    SQL> COLUMN member FORMAT A42
+    SQL> SELECT group#, member, con_id FROM v$logfile;
+        GROUP#      MEMBER                                     CON_ID
+        ----------  ------------------------------------------ ------
+        3           /u01/app/oracle/oradata/ORCL/redo03.log         0
+        2           /u01/app/oracle/oradata/ORCL/redo02.log         0
+        1           /u01/app/oracle/oradata/ORCL/redo01.log         0
+    SQL>
+
+# View "v$controlfile" lista todos os CONTROL FILES do CDB.
+    SQL> COLUMN name FORMAT A55
+    SQL> SELECT name, con_id FROM v$controlfile;
+        NAME                                                    CON_ID
+        ------------------------------------------------------- ----------
+        /u01/app/oracle/oradata/ORCL/control01.ctl              0
+        /u01/app/oracle/fast_recovery_area/ORCL/control02.ctl   0
+    SQL>
+
+
+# Liste apenas os usuários comuns no CDB consultando a visualização CDB_USERS.
+    SQL> SET PAGES 140
+    SQL> SELECT DISTINCT username FROM cdb_users WHERE common ='YES' ORDER BY 1;
+        USERNAME
+        --------------------------
+        ANONYMOUS
+        APPQOSSYS
+        AUDSYS
+        CTXSYS
+        DBSFWUSER
+        DBSNMP
+        DIP
+        DVF
+        DVSYS
+        FLOWS_FILES
+        GGSYS
+        GSMADMIN_INTERNAL
+        GSMCATUSER
+        GSMUSER
+        LBACSYS
+        MDDATA
+        MDSYS
+        OJVMSYS
+        OLAPSYS
+        ORACLE_OCM
+        ORDDATA
+        ORDPLUGINS
+        ORDSYS
+        OUTLN
+        REMOTE_SCHEDULER_AGENT
+        SI_INFORMTN_SCHEMA
+        SPATIAL_CSW_ADMIN_USR
+        SYS
+        SYS$UMF
+        SYSBACKUP
+        SYSDG
+        SYSKM
+        SYSRAC
+        SYSTEM
+        WMSYS
+        XDB
+        XS$NULL
+        36 rows selected.
+    SQL>
+    SQL> SELECT con_id, username FROM cdb_users;
+        CON_ID     USERNAME
+        ----------  -------------------------
+        1          SYS
+        1          SYSTEM
+        1          XS$NULL
+        1          OJVMSYS
+        1          LBACSYS
+        1          OUTLN
+        1          SYS$UMF
+        1          DBSNMP
+        1          APPQOSSYS
+        1          GGSYS
+        1          ANONYMOUS
+        1          CTXSYS
+        1          SI_INFORMTN_SCHEMA
+        1          DVSYS
+        1          DVF
+        1          GSMADMIN_INTERNAL
+        1          ORDPLUGINS
+        1          MDSYS
+        1          OLAPSYS
+        1          ORDDATA
+        1          XDB
+        1          WMSYS
+        1          ORDSYS
+        1          GSMCATUSER
+        1          MDDATA
+        1          SYSBACKUP
+        1          REMOTE_SCHEDULER_AGENT
+        1          DBSFWUSER
+        1          GSMUSER
+        1          SYSRAC
+        1          AUDSYS
+        1          DIP
+        1          SYSKM
+        1          ORACLE_OCM
+        1          SYSDG
+        1          SPATIAL_CSW_ADMIN_USR
+        3          SYS
+        3          SYSTEM
+        3          XS$NULL
+        3          LBACSYS
+        3          OUTLN
+        3          DBSNMP
+        3          APPQOSSYS
+        3          GGSYS
+        3          ANONYMOUS
+        3          HR
+        3          CTXSYS
+        3          SI_INFORMTN_SCHEMA
+        3          DVSYS
+        3          DVF
+        3          GSMADMIN_INTERNAL
+        3          ORDPLUGINS
+        3          MDSYS
+        3          OLAPSYS
+        3          ORDDATA
+        3          XDB
+        3          WMSYS
+        3          ORDSYS
+        3          GSMCATUSER
+        3          MDDATA
+        3          SYSBACKUP
+        3          REMOTE_SCHEDULER_AGENT
+        3          DBSFWUSER
+        3          PDBADMIN
+        3          GSMUSER
+        3          SYSRAC
+        3          OJVMSYS
+        3          AUDSYS
+        3          DIP
+        3          SYSKM
+        3          ORACLE_OCM
+        3          SYS$UMF
+        3          SYSDG
+        3          SPATIAL_CSW_ADMIN_USR
+    SQL>
+
+# View "v$instance" lista todas as instancia no oracle conectado.
+    SQL> SELECT instance_name, status, con_id FROM v$instance;
+        INSTANCE_NAME       STATUS      CON_ID
+        ----------------    ---------   ----------
+        ORCL                OPEN        0
+    SQL>
+
+# View "v$services" lista todos os serviços da estância.
+    SQL> SELECT instance_name, status, con_id FROM v$instance;
+        INSTANCE_NAME       STATUS      CON_ID
+        ----------------    ---------   ----------
+        ORCL                OPEN                 0
+    SQL>
+
+# View "v$services" lista todos os 
+    (A consulta retorna os cinco serviços a seguir. O serviço não está listado porque ninguém deve se conectar a ele e ao PDB$SEED nenhuma operação deve ser executada com ele. Está reservado como modelo para criar outros PDBs)
+
+    A. ORCLXDB: este é um serviço interno para Oracle XMLDB (XDB). Você usa o Oracle XML DB para armazenar, gerar, manipular, gerenciar e consultar dados XML no banco de dados. Oracle Enterprise Manager
+    O Express 12c é desenvolvido usando o Oracle XML DB.
+    B. ORCL.example.com: este é o serviço do CDB.
+    C. SYS$USERS: Este serviço interno é para sessões de usuário que não estão associadas a serviços.
+    D. SYS$BACKGROUND: Esse serviço interno é usado apenas pelos processos em segundo plano do Oracle.
+    E. pdb1.example.com: Este é o serviço para o PDB.
+
+        SQL> SELECT con_id, name FROM v$services ORDER BY 1;
+            CON_ID     NAME
+            ---------- -----------------------------------------
+            1          ORCLXDB
+            1          ORCL.example.com
+            1          SYS$USERS
+            1          SYS$BACKGROUND
+            3          pdb1.example.com
+        SQL>
+
+# View "v$parameter" lista os paramentos da estância conectado.
+     -> V$PARAMETER - Exibe informações sobre o conteúdo do arquivo spfile. Se você não usou um spfile para iniciar o instância do banco de dados, cada linha da visualização conterá na coluna FALSE ISSPECIFIED.
+     -> V$PARAMETER2 - Exibe informações sobre os parâmetros atualmente em vigor para a sessão, com cada valor de parâmetro que aparece como uma linha na exibição. Uma nova sessão herda valores de parâmetro do valores de toda a instância do banco de dados exibidos na visualização V$SYSTEM_PARAMETER2.
+     -> V$SPPARAMETER - Exibe informações sobre os parâmetros atualmente em vigor para o banco de dados instância
+    -> V$SYSTEM_PARAMETER
+
+    SQL> SHOW PARAMETERR para
+        NAME                                    TYPE            VALUE
+        ------------------------------------    -----------     ---------------------
+        cell_offload_parameters                 string
+        fast_start_parallel_rollback            string          LOW
+        parallel_adaptive_multi_user            boolean         TRUE
+        parallel_automatic_tuning               boolean         FALSE
+
+    SQL> SELECT name, value FROM v$parameter WHERE name LIKE '%pool%';
+        NAME                        VALUE
+        -------------------------   ----------
+        shared_pool_size            0
+        large_pool_size             0
+        java_pool_size              0
+        streams_pool_size           0
+        shared_pool_reserved_size   15728640
+        …
+        9 rows selected.
+
+
+
+# Desligar estância oracle "SHUTDOWN".
+                                                    ABORT   IMMEDIATE   TRANSACTIONAL   NORMAL
+    Permite novas conexões                          No      No          No              No
+    Aguarda até o término das sessões atuais        No      No          No              Yes
+    Aguarda até o término das transações atuais     No      No          Yes             Yes
+    Força um ponto de verificação e fecha arquivos  No      Yes         Yes             Yes
+
+# Iniciar o PDB.
+    Open/close um PDB para Open/close seus arquivos de dados.
+    Um PDB possui quatro modos abertos:
+        READ WRITE (o PDB está totalmente iniciado / aberto)
+        READ ONLY
+        MIGRATE
+        MOUNTED (o PDB está desligado / fechado)
+    Use o comando ALTER PLUGGABLE DATABASE ou STARTUP e
+    Comandos SHUTDOWN para Open e close PDBs.
+        Exemplo:
+            SQL> ALTER PLUGGABLE DATABASE PDB1 OPEN;
+    O comando ALTER PLUGGABLE DATABASE permite alterar a partir de qualquer modo para outro.
+    Para usar o comando STARTUP, o PDB deve primeiro estar no modo MOUNTED.
+
+
+# View "v$diag_info" lista os diretórios do ADR (Automatic Diagnostics Repository).
+    SQL> SELECT name, value FROM v$diag_info;
+        NAME                    VALUE
+        ---------------------   --------------------------------------------
+        Diag Enabled            TRUE
+        ADR Base                /u01/app/oracle
+        ADR Home                /u01/app/oracle/diag/rdbms/orcl/ORCL
+        Diag Trace              /u01/app/oracle/diag/rdbms/orcl/ORCL/trace
+        Diag Alert              /u01/app/oracle/diag/rdbms/orcl/ORCL/alert
+        Diag Incident           /u01/app/oracle/diag/rdbms/orcl/ORCL/incident
+        Diag Cdump              /u01/app/oracle/diag/rdbms/orcl/ORCL/cdump
+        Health Monitor          /u01/app/oracle/diag/rdbms/orcl/ORCL/hm
+        Default Trace File      /u01/app/oracle/diag/rdbms/orcl/ORCL/trace/ORCL_ora_24354.trc
+        Active Problem Count    1
+        Active Incident Count   1
+        11 rows selected.
+    SQL>
+
+
+# Criar um PDB NOVO com sqlplus / as sysdba
+
+    1 - Criar o diretórios do PDB
+        $ mkdir $ORACLE_BASE/oradata/ORCL/PDB2
+    2 - Verificar permissão do novo diretórios.
+        $ ls -l /u01/app/oracle/oradata/ORCL | grep PDB2
+            drwxr-xr-x 2 oracle oinstall 4096 Jul 19 18:16 PDB2
+        $
+    3 - Conectador no Oracle.
+        SQL> CREATE PLUGGABLE DATABASE PDB2 ADMIN USER PDB2ADMIN
+            2 IDENTIFIED BY <password>
+            3 ROLES=(dba)
+            4 DEFAULT TABLESPACE USERS
+            5 DATAFILE '/u01/app/oracle/oradata/ORCL/PDB2/users01.dbf'
+            6 SIZE 250M AUTOEXTEND ON
+            7 FILE_NAME_CONVERT=('/u01/app/oracle/oradata/ORCL/pdbseed/','/u01/app/oracle/oradata/ORCL/PDB2/');
+        Pluggable database created.
+        SQL>
+    4 - Verificar a criação do PDB
+        SQL> COLUMN con_id FORMAT 999
+        SQL> COLUMN name FORMAT A10
+        SQL> SELECT con_id, name, open_mode FROM v$pdbs;
+            CON_ID  NAME        OPEN_MODE
+            ------  ----------  ----------
+            2       PDB$SEED    READ ONLY
+            3       PDB1        READ WRITE
+            4       PDB2        MOUNTED
+        SQL>
+    5 - Dar o OPEN no PDB.
+        SQL> ALTER PLUGGABLE DATABASE PDB2 OPEN;
+        Pluggable database altered.
+        SQL>
+    6 - Verificar O PDB.
+        SQL> SELECT con_id, name, open_mode FROM v$pdbs;
+            CON_ID  NAME        OPEN_MODE
+            ------  ----------  ----------
+            2       PDB$SEED    READ ONLY
+            3       PDB1        READ WRITE
+            4       PDB2        READ WRITE
+        SQL>
+    7 - Verificar se o SERVIÇO do PDB foi criado.
+        SQL> !lsnrctl status
+            LSNRCTL for Linux: Version 12.2.0.1.0 - Production on 16-JUL-2016 11:38:12
+
+            Copyright (c) 1991, 2016, Oracle. All rights reserved.
+
+            Connecting to (ADDRESS=(PROTOCOL=tcp)(HOST=)(PORT=1521))
+            STATUS of the LISTENER
+            ------------------------
+            Alias                       LISTENER1
+            Version                     TNSLSNR for Linux: Version 12.2.0.1.0 - Production
+            Start Date                  14-JUL-2016 18:03:46
+            Uptime                      1 days 17 hr. 34 min. 26 sec
+            Trace Level                 off
+            Security                    ON: Local OS Authentication
+            SNMP                        OFF
+            Listener Parameter File     /u01/app/oracle/product/12.2.0/dbhome_1/network/admin/listener.ora
+            Listener Log File           /u01/app/oracle/diag/tnslsnr/12cr2db/listener1/alert/log.xml
+            Listening Endpoints Summary...
+                (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=12cr2db.us.oracle.com)(PORT=1521)))
+                (DESCRIPTION=(ADDRESS=(PROTOCOL=ipc)(KEY=EXTPROC1521)))
+                (DESCRIPTION=(ADDRESS=(PROTOCOL=tcps)(HOST=12cr2db.us.oracle.com)(PORT=5500))
+
+            (Security=(my_wallet_directory=/home/oracle/admin/ORCL/xdb_wallet))
+            (Presentation=HTTP)(Session=RAW)) (DESCRIPTION=(ADDRESS=(PROTOCOL=tcps)(HOST=12cr2db.us.oracle.com)(PORT=5501))
+            (Presentation=HTTP)(Session=RAW))
+            
+            Services Summary...
+                Service "379d6befb4634ac8e0530d11ed0ad32d.example.com" has 1 instance(s). Instance "ORCL", status READY, has 1 handler(s) for this service...
+                Service "37b460507162736de0530d11ed0a2417.example.com" has 1 instance(s). Instance "ORCL", status READY, has 1 handler(s) for this service...
+                Service "ORCL.example.com" has 1 instance(s). Instance "ORCL", status READY, has 1 handler(s) for this service...
+                Service "ORCLXDB.example.com" has 1 instance(s). Instance "ORCL", status READY, has 1 handler(s) for this service...
+                Service "pdb1.example.com" has 1 instance(s). Instance "ORCL", status READY, has 1 handler(s) for this service...
+                Service "pdb2.example.com" has 1 instance(s). Instance "ORCL", status READY, has 1 handler(s) for this service...
+            The command completed successfully
+        SQL>
+    8 - Teste de conexão no PDB.
+        Conectar 
+        SQL> CONNECT PDB2ADMIN/<password>@localhost:1521/pdb2.example.com
+            Connected.
+        SQL>
+        Setar o novo PDB
+        SQL> ALTER SESSION SET container = PDB2;
+            Session altered.
+        SQL>
+        Verificar o nome do PDB.
+        SQL> SHOW con_name
+            CON_NAME
+            ------------------------------
+            PDB2
+        SQL>
+        Verificar o ID do PDB.
+        SQL> SHOW con_id
+            CON_ID
+            ------------------------------
+            4
+        SQL>
+        Verificar o nome do serviço do PDB.
+        SQL> COLUMN name FORMAT A20
+        SQL> SELECT name FROM v$services;
+            NAME
+            -------------------
+            pdb2.example.com
+        SQL>
+        Listar os DATA FILES do PDB.
+        SQL> SELECT file_name, tablespace_name FROM dba_data_files;
+            FILE_NAME                                           TABLESPACE
+            ------------------------------------------------    ----------
+            /u01/app/oracle/oradata/ORCL/PDB2/system01.dbf      SYSTEM
+            /u01/app/oracle/oradata/ORCL/PDB2/sysaux01.dbf      SYSAUX
+            /u01/app/oracle/oradata/ORCL/PDB2/undotbs01.dbf     UNDOTBS1
+            /u01/app/oracle/oradata/ORCL/PDB2/users01.pdf       USERS
+        SQL>
+        Listar os TEMP FILE  do PDB.
+        SQL> SELECT file_name, tablespace_name FROM dba_temp_files;
+            FILE_NAME                                           TABLESPACE
+            -----------------------------------------------     ----------
+            /u01/app/oracle/oradata/ORCL/PDB2/ TEMP
+            temp012016-07-14_18-07-01-801-PM.dbf
+        SQL>
+        Listar o usuário local do PDB.
+        SQL> SELECT DISTINCT username FROM dba_users WHERE common='NO';
+            USERNAME
+            ------------------------
+            PDB2ADMIN
+        SQL>
+        
+# CLONANDO um PDB com sqlplus / as sysdba
+
+    1 - Criar o diretórios do PDB
+        $ mkdir $ORACLE_BASE/oradata/ORCL/PDB3
+    2 - Verificar permissão do novo diretórios.
+        $ ls -l /u01/app/oracle/oradata/ORCL | grep PDB3
+            drwxr-xr-x 2 oracle oinstall 4096 Jul 19 18:16 PDB3
+        $
+    3 - Conectador no Oracle.
+        SQL> CREATE PLUGGABLE DATABASE PDB3 FROM PDB1
+            CREATE_FILE_DEST= '/u01/app/oracle/oradata/ORCL/PDB3' 2 ;
+        Pluggable database created.
+        SQL>
+    4 - Verificar a criação do PDB
+        SQL> COLUMN con_id FORMAT 999
+        SQL> COLUMN name FORMAT A10
+        SQL> SELECT con_id, name, open_mode FROM v$pdbs;
+            CON_ID  NAME        OPEN_MODE
+            ------  ----------  ----------
+            2       PDB$SEED    READ ONLY
+            3       PDB1        READ WRITE
+            4       PDB2        READ WRITE
+            5       PDB3        MOUNTED
+        SQL>
+    
+    5 - Dar o OPEN no PDB.
+        SQL> ALTER PLUGGABLE DATABASE PDB3 OPEN;
+            Pluggable database altered.
+        SQL>
+
+    6 - Verificar O PDB.
+        SQL> SHOW PDBS
+            CON_ID      CON_NAME                        OPEN MODE   RESTRICTED
+            ----------  ------------------------------  ----------  ----------
+            2           PDB$SEED                        READ ONLY           NO
+            3           PDB1                            READ WRITE          NO
+            4           PDB2                            READ WRITE          NO
+            5           PDB3                            READ WRITE          NO
+        SQL>
+    7 - Verificar se o SERVIÇO do PDB foi criado.
+        SQL> !lsnrctl status
+            LSNRCTL for Linux: Version 12.2.0.1.0 - Production on 16-JUL-2016 11:38:12
+
+            Copyright (c) 1991, 2016, Oracle. All rights reserved.
+
+            Connecting to (ADDRESS=(PROTOCOL=tcp)(HOST=)(PORT=1521))
+            STATUS of the LISTENER
+            ------------------------
+            Alias                       LISTENER1
+            Version                     TNSLSNR for Linux: Version 12.2.0.1.0 - Production
+            Start Date                  14-JUL-2016 18:03:46
+            Uptime                      1 days 17 hr. 34 min. 26 sec
+            Trace Level                 off
+            Security                    ON: Local OS Authentication
+            SNMP                        OFF
+            Listener Parameter File     /u01/app/oracle/product/12.2.0/dbhome_1/network/admin/listener.ora
+            Listener Log File           /u01/app/oracle/diag/tnslsnr/12cr2db/listener1/alert/log.xml
+            Listening Endpoints Summary...
+                (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=12cr2db.us.oracle.com)(PORT=1521)))
+                (DESCRIPTION=(ADDRESS=(PROTOCOL=ipc)(KEY=EXTPROC1521)))
+                (DESCRIPTION=(ADDRESS=(PROTOCOL=tcps)(HOST=12cr2db.us.oracle.com)(PORT=5500))
+
+            (Security=(my_wallet_directory=/home/oracle/admin/ORCL/xdb_wallet))
+            (Presentation=HTTP)(Session=RAW)) (DESCRIPTION=(ADDRESS=(PROTOCOL=tcps)(HOST=12cr2db.us.oracle.com)(PORT=5501))
+            (Presentation=HTTP)(Session=RAW))
+            
+            Services Summary...
+                Service "379d6befb4634ac8e0530d11ed0ad32d.example.com" has 1 instance(s). Instance "ORCL", status READY, has 1 handler(s) for this service...
+                Service "37b460507162736de0530d11ed0a2417.example.com" has 1 instance(s). Instance "ORCL", status READY, has 1 handler(s) for this service...
+                Service "ORCL.example.com" has 1 instance(s). Instance "ORCL", status READY, has 1 handler(s) for this service...
+                Service "ORCLXDB.example.com" has 1 instance(s). Instance "ORCL", status READY, has 1 handler(s) for this service...
+                Service "pdb1.example.com" has 1 instance(s). Instance "ORCL", status READY, has 1 handler(s) for this service...
+                Service "pdb2.example.com" has 1 instance(s). Instance "ORCL", status READY, has 1 handler(s) for this service...
+                Service "pdb3.example.com" has 1 instance(s). Instance "ORCL", status READY, has 1 handler(s) for this service...
+            The command completed successfully
+        SQL>
+    8 - Teste de conexão no PDB.
+        Set o PDB3.
+            SQL> ALTER SESSION SET container = PDB3;
+                Session altered.
+            SQL>
+        
+        Verificar o Data files.
+            SQL> SELECT file_name, tablespace_name FROM dba_data_files;
+                FILE_NAME                                               TABLESPACE
+                ------------------------------------------------------  ----------
+                /u01/app/oracle/oradata/ORCL/PDB3/ORCL/                 USERS
+                37F073AA023D7F20E0530D11ED0A8ECE/datafile/o1_mf_users_crtkof0f_.dbf
+                /u01/app/oracle/oradata/ORCL/PDB3/ORCL/                 UNDOTBS1
+                37F073AA023D7F20E0530D11ED0A8ECE/datafile/o1_mf_undotbs1_crtkof0d_.dbf
+                /u01/app/oracle/oradata/ORCL/PDB3/ORCL/                 SYSAUX
+                37F073AA023D7F20E0530D11ED0A8ECE/datafile/o1_mf_sysaux_crtkof0c_.dbf
+                /u01/app/oracle/oradata/ORCL/PDB3/ORCL/                 SYSTEM
+                37F073AA023D7F20E0530D11ED0A8ECE/datafile/o1_mf_system_crtkof01_.dbf
+            SQL>
+
+        Verificar o data temp.
+            SQL> SELECT file_name, tablespace_name FROM dba_temp_files;
+                FILE_NAME                                                   TABLESPACE
+                ----------------------------------------------------------  ----------
+                /u01/app/oracle/oradata/ORCL/PDB3/ORCL/                     TEMP
+                37F073AA023D7F20E0530D11ED0A8ECE/datafile/o1_mf_temp_crtkof0d_.dbf
+            SQL>
+
+        Lista os usuários do PDB.
+            SQL> SELECT DISTINCT username FROM dba_users WHERE common='NO';
+                USERNAME
+                ---------------------------
+                PDBADMIN
+                HR
+            SQL>
+
+#Desconectando e conectando um PDB (Unplugging and Plugging a PDB)
+    Feche o PDB.
+        SQL> ALTER PLUGGABLE DATABASE PDB3 CLOSE IMMEDIATE;
+            Pluggable database altered.
+        SQL>
+    Desconect o PDB (UNPLUGGING PDB), e importe o PDB para um arquivo XML
+        SQL> ALTER PLUGGABLE DATABASE PDB3 UNPLUG INTO '/u01/app/oracle/oradata/PDB3.xml';
+            Pluggable database altered.
+        SQL>
+
+    Apagando o PDB clonado 
+        SQL> DROP PLUGGABLE DATABASE PDB3 KEEP DATAFILES;
+            Pluggable database dropped.
+        SQL>
+        SQL> SELECT pdb_name, status FROM cdb_pdbs WHERE pdb_name IN ('PDB3');
+            no rows selected
+        SQL>
+
+    Conectando o PDB, (PLUGGABLE PDB).
+        SQL> set serveroutput on
+        SQL> DECLARE
+            2 compatible BOOLEAN := FALSE;
+            3 BEGIN
+            4 compatible := DBMS_PDB.CHECK_PLUG_COMPATIBILITY(pdb_descr_file => '/u01/app/oracle/oradata/PDB3.xml');
+            5 if compatible then
+            6 DBMS_OUTPUT.PUT_LINE('PDB3 is compatible');
+            7 else DBMS_OUTPUT.PUT_LINE('PDB3 is not compatible');
+            8 end if;
+            9 END;
+            10 /
+        PDB3 is compatible
+        PL/SQL procedure successfully completed.
+        SQL>
+        SQL> CREATE PLUGGABLE DATABASE HRPDB USING
+            '/u01/app/oracle/oradata/PDB3.xml' NOCOPY TEMPFILE REUSE;
+            Pluggable database created.
+        SQL>
+
+    Lista todos os PDB.
+        SQL> COLUMN name FORMAT A8
+        SQL> SELECT name, con_id FROM v$containers ORDER BY con_id;
+            NAME        CON_ID
+            --------    ----------
+            CDB$ROOT    1
+            PDB$SEED    2
+            PDB1        3
+            PDB2        4
+            HRPDB       5
+        SQL>
+
+    Abrir PDB (OPEN PDB)
+        SQL> SELECT pdb_name, status FROM cdb_pdbs WHERE pdb_name='HRPDB';
+            PDB_NAME                            STATUS
+            -------------------------------     ----------
+            HRPDB                               NEW
+        SQL>
+        
+        SQL> SELECT open_mode FROM v$pdbs WHERE name='HRPDB';
+            OPEN_MODE
+            ----------
+            MOUNTED
+        SQL>
+
+        SQL> ALTER PLUGGABLE DATABASE HRPDB open;
+            Pluggable database altered.
+        SQL>
+
+        SQL> SELECT open_mode FROM v$pdbs WHERE name='HRPDB';
+            OPEN_MODE
+            ----------
+            MOUNTED
+        SQL>
+
+
+# Listar "dba_sys_privs" todos os privilégios concedidos ao um usuário ou função. 
+    SQL> select grantee,privilege from dba_sys_privs where grantee='RESOURCE';
+        GRANTEE                         PRIVILEGE
+        ------------------------------  -----------------------
+        RESOURCE                        CREATE TRIGGER
+        RESOURCE                        CREATE SEQUENCE
+        RESOURCE                        CREATE TYPE
+        RESOURCE                        CREATE PROCEDURE
+        RESOURCE                        CREATE CLUSTER
+        RESOURCE                        CREATE OPERATOR
+        RESOURCE                        CREATE INDEXTYPE
+        RESOURCE                        CREATE TABLE
+        8 rows selected.
+    SQL>
+
+
+VOLTA A LER PAGINA 317
+
+# Gestão de usuário.
+    -> Criar usuário:Crie um usuário comum chamado usando o comando c##CDB_ADMIN1 CRIAR USUÁRIO Consulte o Apêndice Atribuir ao espaço de tabela e ao para a            senha. Credenciais específicas do produto c##CDB_ADMIN1 usuários temporário do espaço de tabela. Desbloqueie também a conta para que possa efetuar                login imediatamente.temp c##CDB_ADMIN1 Importante! Para criar um usuário comum, você deve iniciar o nome de usuário com ou e incluir a cláusula c##               C## CONTAINER = ALL para que a identidade e a senha do usuário sejam criadas em todos os contêineres.
+            SQL> CREATE USER c##CDB_ADMIN1 IDENTIFIED BY  CONTAINER=ALL DEFAULT <password> TABLESPACE users TEMPORARY TABLESPACE temp  ACCOUNT UNLOCK;
+                User created. 
+            SQL>
+    
+    -> Liberar acesso: Conceda a função, o privilégio e o privilégio em todos os contêineres c##CDB_ADMIN1 DBA CREATE SESSION SYSDBA. Este é um exemplo de concessão de                 privilégios e uma função.
+            SQL> GRANT create session, dba, sysdba TO c##CDB_ADMIN1 CONTAINER=ALL;
+                Grant succeeded. 
+            SQL>
+    
+    -> Pergunta: A declaração a seguir completaria a mesma operação?
+            SQL> GRANT create session, dba TO c##CDB_ADMIN1;
+                 Grant succeeded. 
+            SQL>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,115 @@
+
+
+#Instalar images
+    sudo docker pull postgres:9.6
+    sudo docker pull postgres:10
+    sudo docker pull dpage/pgadmin4
+    sudo docker pull mcr.microsoft.com/mssql/server:2017-latest
+    sudo docker pull mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04
+    sudo docker pull mysql/mysql-server:5.6
+    sudo docker pull mysql/mysql-server:5.7
+    sudo docker pull mysql/mysql-server:8
+    sudo docker pull mysql/mysql-server:8.1.1.8
+
+
+#Iniciar container
+
+    #Postgres:
+        #Criando uma network para execução dos containers
+            sudo docker run --name teste-postgres --network=postgres-network -e "POSTGRES_PASSWORD=Postgres2018!" -p 5432:5432 -v /home/renatogroffe/Desenvolvimento/PostgreSQL:/var/lib/postgresql/data -d postgres
+
+        #Criando um container para executar uma instância do PostgreSQL
+            sudo docker run --name teste-postgres --network=postgres-network -e "POSTGRES_PASSWORD=Postgres2018!" -p 5432:5432 -v /home/renatogroffe/Desenvolvimento/PostgreSQL:/var/lib/postgresql/data -d postgres
+
+        #No caminho /home/renatogroffe/Desenvolvimento/PostgreSQL do Ubuntu Desktop, estarão os arquivos de dados vinculados a esta instância (o diretório PostgreSQL será criado caso ainda não exista):
+
+        #Criando um container para execução do pgAdmin 4
+            sudo docker run --name teste-pgadmin --network=postgres-network -p 15432:80 -e "PGADMIN_DEFAULT_EMAIL=renatogroff@yahoo.com.br" -e "PGADMIN_DEFAULT_PASSWORD=PgAdmin2018!" -d dpage/pgadmin4
+
+        #Testes - acessando a URL http://localhost:15432 aparecerá a tela para login no pgAdmin 4:
+
+
+
+
+
+    #SQL Server
+        #Criando um container para executar uma instância do SQL Server 2019
+            sudo docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=<YourStrong@Passw0rd>" \
+            -p 1433:1433 --name sql1 \
+            -d mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04
+        
+
+
+        #Criando um container para executar uma instância do SQL Server 2017
+            sudo docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=<YourStrong@Passw0rd>" \
+            -p 1433:1433 --name sql1 \
+            -d mcr.microsoft.com/mssql/server:2017-latest
+
+
+        #Alterar a senha SA
+        sudo docker exec -it sql1 /opt/mssql-tools/bin/sqlcmd \
+        -S localhost -U SA -P "<YourStrong@Passw0rd>" \
+        -Q 'ALTER LOGIN SA WITH PASSWORD="<YourNewStrong@Passw0rd>"'
+
+
+
+        #Conecte-se ao SQL Server
+            #As etapas a seguir usam a ferramenta de linha de comando do SQL Server, a sqlcmd, dentro do contêiner para conectar-se ao SQL Server.
+            #01 - Use o comando docker exec -it para iniciar um shell bash interativo dentro do contêiner em execução. No exemplo a seguir, sql1 é o nome especificado pelo parâmetro --name na criação do contêiner.
+                sudo docker exec -it sql1 "bash"
+
+
+            #02 - Quando estiver dentro do contêiner, conecte-se localmente com a sqlcmd. A sqlcmd não está no caminho por padrão, portanto, você precisará especificar o caminho completo.
+                /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "<YourNewStrong@Passw0rd>"
+
+
+
+        #mysql
+            #Criando um container para executar uma instância do MySQL
+                sudo docker run --name=mysql1 -d mysql/mysql-server:tag
+
+            #A -dopção usada no docker runcomando acima faz com que o contêiner seja executado em segundo plano. Use este comando para monitorar a saída do contêiner:
+                sudo docker logs mysql1
+            #Após a conclusão da inicialização, a saída do comando conterá a senha aleatória gerada para o usuário root; verifique a senha com, por exemplo, este comando:
+                sudo docker logs mysql1 2>&1 | grep GENERATED
+
+            #Conectando ao MySQL Server de dentro do Container
+                sudo docker exec -it mysql1 mysql -uroot -p
+
+                
+
+#Instalar sqlcmd e bcp, as ferramentas de linha de comando do SQL Server no Linux
+    #Ubuntu
+        curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+        curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+        sudo apt-get update 
+        sudo apt-get install mssql-tools unixodbc-dev
+        sudo apt-get update 
+        sudo apt-get install mssql-tools
+
+        #Opcional: Adicione /opt/mssql-tools/bin/ à sua variável de ambiente PATH em um shell de Bash. Para tornar o sqlcmd/bcp acessível do shell de Bash para sessões de logon, modifique o PATH no arquivo ~/.bash_profile com o seguinte comando:
+            echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bash_profile
+
+        #Para tornar o sqlcmd/bcp acessível do shell de Bash para sessões interativas/que não são de logon, modifique o PATH no arquivo ~/.bashrc com o seguinte comando:
+            echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc source ~/.bashrc
+        # Conectando com o sqlcmd.
+            sqlcmd -S <ip_address>,1433 -U SA -P "<YourNewStrong@Passw0rd>"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
