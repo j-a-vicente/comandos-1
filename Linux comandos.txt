@@ -31,4 +31,68 @@
     proxy_password=<Proxy-Password> 
         
         
-        
+# Disk:
+
+Listar os discos
+
+# ls -l /dev/sda*
+
+Obs.: Iremos usar o dispositivo sda3
+
+Listar os dispositivos para saber o UUID, Label e Tipo de partição.
+# blkid
+
+Formatar e definir uma Label (rótulo) no dispositivo.
+# mkfs.ext4 -L pendrive /dev/sdb3
+ 
+Criar diretório onde iremos montar a partição.
+# mkdir /home/backup
+Montar o dispositivo através da Label ou caminho.
+# mount LABEL=pendrive /home/backup
+# mount /dev/sda3 /home/backup
+Listar as partições montadas.
+# df -h
+Desmontar o disco para definirmos que monte automático na inicialização do sistema:
+# umount /home/backup
+
+$ cat /etc/fstab
+
+#
+# /etc/fstab
+# Created by anaconda on Sat Mar 14 19:14:11 2015
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+/dev/mapper/centos-root /                       xfs     defaults        1 1
+UUID=80b496fa-ce2d-4dcf-9afc-bcaa731a67f1 /mnt/example ext4    defaults   0      2
+/dev/mapper/centos-swap swap                    swap    defaults        0 0
+
+mount -a
+
+
+
+
+
+
+------------------------------
+fdisk -l
+
+sudo yum install util-linux-ng
+lsblk 
+NAME                        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sr0                          11:0    1 1024M  0 rom  
+vda                         252:0    0   10G  0 disk 
+├─vda1                      252:1    0  500M  0 part /boot
+└─vda2                      252:2    0  9.5G  0 part 
+  ├─vg_mungr-lv_root (dm-0) 253:0    0  8.6G  0 lvm  /
+  └─vg_mungr-lv_swap (dm-1) 253:1    0  992M  0 lvm  [SWAP]
+  
+  
+
+blkid
+
+
+ll /dev/ | grep '^b'
+
+
