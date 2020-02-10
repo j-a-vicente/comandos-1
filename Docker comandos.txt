@@ -10,6 +10,7 @@
     sudo docker pull mysql/mysql-server:5.7
     sudo docker pull mysql/mysql-server:8
     sudo docker pull mysql/mysql-server:8.1.1.8
+    sudo docker pull mysql/mysql-cluster
 
 
 #Iniciar container
@@ -76,7 +77,50 @@
             #Conectando ao MySQL Server de dentro do Container
                 sudo docker exec -it mysql1 mysql -uroot -p
 
+        #MySQL Cluster NDB
+            
+            #Observe que a ordem de inicialização do contêiner é muito rigorosa e provavelmente precisará ser iniciada do zero, se alguma etapa falhar. Primeiro, criamos uma rede interna do Docker que os contêineres usarão para se comunicar.
                 
+                docker network create cluster --subnet=192.168.0.0/16
+            
+             #Então começamos o nó de gerenciamento
+                docker run -d --net=cluster --name=management1 --ip=192.168.0.2 mysql/mysql-cluster ndb_mgmd
+                
+             #Os dois nós de dados
+                docker run -d --net=cluster --name=ndb1 --ip=192.168.0.3 mysql/mysql-cluster ndbd
+                docker run -d --net=cluster --name=ndb2 --ip=192.168.0.4 mysql/mysql-cluster ndbd
+
+            #E, finalmente, o nó do servidor MySQL
+                docker run -d --net=cluster --name=mysql1 --ip=192.168.0.10 -e MYSQL_RANDOM_ROOT_PASSWORD=true mysql/mysql-cluster mysqld
+                
+            #O servidor será inicializado com uma senha aleatória que precisará ser alterada; portanto, busque-a no log, faça login e altere a senha. Se você receber um erro dizendo «ERRO 2002 (HY000): Não é possível conectar ao servidor MySQL local através do soquete», o servidor ainda não concluiu a inicialização.
+                docker logs mysql1 2>&1 | grep PASSWORD
+                docker exec -it mysql1 mysql -uroot -p
+                ALTER USER 'root'@'localhost' IDENTIFIED BY 'MyNewPass';
+
+            #Finalmente, inicie um contêiner com um cliente de gerenciamento interativo para verificar se o cluster está ativo
+                docker run -it --net=cluster mysql/mysql-cluster ndb_mgm
+
+            #Execute o comando SHOW para imprimir o status do cluster. Você deve ver o seguinte
+
+            #Starting ndb_mgm
+            -- NDB Cluster -- Management Client --
+            ndb_mgm> show
+            Connected to Management Server at: 192.168.0.2:1186
+            Cluster Configuration
+            ---------------------
+            [ndbd(NDB)]    2 node(s)
+            id=2    @192.168.0.3  (mysql-5.7.18 ndb-7.6.2, Nodegroup: 0, *)
+            id=3    @192.168.0.4  (mysql-5.7.18 ndb-7.6.2, Nodegroup: 0)
+
+            [ndb_mgmd(MGM)]    1 node(s)
+            id=1    @192.168.0.2  (mysql-5.7.18 ndb-7.6.2)
+
+            [mysqld(API)]    1 node(s)
+            id=4    @192.168.0.10  (mysql-5.7.18 ndb-7.6.2)
+
+
+
 
 #Instalar sqlcmd e bcp, as ferramentas de linha de comando do SQL Server no Linux
     #Ubuntu
