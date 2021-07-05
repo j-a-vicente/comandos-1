@@ -1,0 +1,23 @@
+
+
+
+CREATE USER 'root'@'%' IDENTIFIED BY '7^z5UMtE}%J!Uu';
+
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';
+
+FLUSH PRIVILEGES;
+
+
+
+CREATE USER 'usrsm'@'10.1.254.34' IDENTIFIED BY 'Z34azI8ChLpmLIy3@';
+
+GRANT ALL PRIVILEGES ON *.* TO 'usrsm'@'10.1.254.34';
+
+
+
+
+CREATE USER 'svc_haas'@'%' IDENTIFIED BY 'hwVb7Hqhet0#';
+
+GRANT ALL PRIVILEGES ON *.* TO 'svc_haas'@'%';
+
+FLUSH PRIVILEGES;
