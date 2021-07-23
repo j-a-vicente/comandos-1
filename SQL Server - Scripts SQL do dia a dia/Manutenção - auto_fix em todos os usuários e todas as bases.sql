@@ -3,7 +3,7 @@ DECLARE  @login sysname
 DECLARE  @db sysname
 
 DECLARE Cont CURSOR FOR
-	select name from sys.sysusers
+	select name from sys.syslogins
 OPEN cont;	
 FETCH NEXT FROM Cont into @login
 
