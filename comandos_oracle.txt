@@ -70,7 +70,7 @@
 
 
 # Lista todos o data files do CDB e dos PDB caso o usuário que executa tenha acesso.
-    SQL> COLUMN file_name FORMAT A50
+    SQL> COLUMN file_name FORMAT A80
     SQL> COLUMN tablespace_name FORMAT A10
     SQL> SELECT file_name, tablespace_name FROM cdb_data_files;
         FILE_NAME                                               TABLESPACE
@@ -295,7 +295,7 @@
      -> V$SPPARAMETER - Exibe informações sobre os parâmetros atualmente em vigor para o banco de dados instância
     -> V$SYSTEM_PARAMETER
 
-    SQL> SHOW PARAMETERR para
+    SQL> SHOW PARAMETERR para;
         NAME                                    TYPE            VALUE
         ------------------------------------    -----------     ---------------------
         cell_offload_parameters                 string
@@ -339,6 +339,9 @@
 
 
 # View "v$diag_info" lista os diretórios do ADR (Automatic Diagnostics Repository).
+
+COLUMN name FORMAT A20
+COLUMN value FORMAT A50
     SQL> SELECT name, value FROM v$diag_info;
         NAME                    VALUE
         ---------------------   --------------------------------------------

@@ -16,7 +16,7 @@ FETCH NEXT FROM Cont into @login
 		FETCH NEXT FROM dbt into @db
 			WHILE @@FETCH_STATUS = 0 
 			BEGIN
-				declare @SqlCommand nvarchar(4000)
+				declare @SqlCommand nvarchar(max)
 		
 				set @SqlCommand = 'USE '+ @db  +'
 EXEC sp_change_users_login ''auto_fix'', '''+ @login +''' '
