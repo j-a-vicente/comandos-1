@@ -1,0 +1,8 @@
+ALTER DATABASE BDCorporativo SET EMERGENCY;
+GO
+ALTER DATABASE BDCorporativo set single_user
+GO
+DBCC CHECKDB (BDCorporativo, REPAIR_ALLOW_DATA_LOSS) WITH ALL_ERRORMSGS;
+GO
+ALTER DATABASE BDCorporativo set multi_user
+GO
