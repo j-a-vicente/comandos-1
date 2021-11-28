@@ -1,0 +1,180 @@
+
+SELECT format(
+  'GRANT SELECT ON TABLE %I.%I  TO %I;',
+  table_schema,
+  table_name,
+  '01934889148' --current_user  -- or another just put it in quotes
+)
+FROM information_schema.tables
+WHERE table_schema = 'piblic'
+  OR  table_schema = 'controle_remoto'
+  OR  table_schema = 'siscom'
+
+
+
+
+
+
+
+
+select table_catalog
+     , table_schema
+     , table_name
+     , pg_size_pretty(pg_relation_size('"'||table_schema||'"."'||table_name||'"')) as "table_size"
+     , pg_size_pretty(pg_indexes_size('"'||table_schema||'"."'||table_name||'"')) as "index_size"
+     , (SELECT reltuples AS estimate FROM pg_class WHERE relname = table_name) as "table_row"
+from information_schema.tables
+where table_schema <> 'pg_catalog'
+  and table_schema <> 'information_schema'
+  and table_type = 'BASE TABLE';
+
+
+
+
+
+sudo -u postgres createuser -s -i -d -r -l -w usrsm
+sudo -u postgres psql -c "ALTER ROLE usrsm WITH PASSWORD 'Z34azI8ChLpmLIy3';"
+
+CREATE USER hepta_dba WITH SUPERUSER;
+ALTER USER hepta_dba WITH PASSWORD 'u$rhptcsc#2018';
+
+CREATE ROLE usrsm WITH
+	LOGIN
+	SUPERUSER
+	CREATEDB
+	CREATEROLE
+	INHERIT
+	NOREPLICATION
+	CONNECTION LIMIT -1
+	PASSWORD 'Z34azI8ChLpmLIy3@';
+
+
+
+SELECT format(
+  'ALTER TABLE %I.%I.%I OWNER TO %I;',
+  table_catalog,
+  table_schema,
+  table_name,
+  current_user  -- or another just put it in quotes
+)
+FROM information_schema.tables
+WHERE table_schema = 'mySchema';
+
+ select 'ALTER TABLE ' || t.tablename || ' OWNER TO new_owner;' 
+ from  pg_tables t
+ where t.tableowner != 'rdsadmin';
+ 
+ 
+ $ psql -qAt -d mydatabase -c "SELECT 'ALTER TABLE '||schemaname||'.'||tablename||' \
+                                      OWNER TO new_owner;' \
+                                      FROM pg_tables \
+                                      WHERE schemaname = 'myschema'" > data.txt
+
+
+$ psql < data.txt -d mydatabase
+
+
+
+SELECT format(
+  'ALTER TABLE %I.%I.%I OWNER TO %I;',
+  table_catalog,
+  table_schema,
+  table_name,
+  'rl_cgemo' --current_user  -- or another just put it in quotes
+)
+FROM information_schema.tables
+WHERE table_schema <> 'pg_catalog'
+  and table_schema <> 'information_schema'
+  
+  
+  
+
+SELECT format(
+  'ALTER SCHEMA %I OWNER TO %I;',
+  table_schema,
+  'mapasculturais'  -- or another just put it in quotes
+)
+
+from information_schema.tables 
+where table_schema <> 'pg_catalog'
+  and table_schema <> 'information_schema'
+
+
+SELECT format(
+  'ALTER TABLE %I.%I.%I OWNER TO %I;',
+  table_catalog,
+  table_schema,
+  table_name,
+  'mapasculturais'  -- or another just put it in quotes
+)
+FROM information_schema.tables
+where table_schema <> 'pg_catalog'
+  and table_schema <> 'information_schema'  
+  
+
+
+GRANT ALL ON SCHEMA public TO GROUP desenvolvimento;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+    GRANT INSERT, SELECT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON TABLES
+    TO desenvolvimento;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+    GRANT SELECT, UPDATE, USAGE ON SEQUENCES
+    TO desenvolvimento;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+    GRANT EXECUTE ON FUNCTIONS
+    TO desenvolvimento;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+    GRANT USAGE ON TYPES
+    TO desenvolvimento;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+  
