@@ -1,0 +1,1 @@
+select max(dth_acesso) from sei.infra_auditoria; 
