@@ -11,6 +11,12 @@
 # Mostra o id do container conectado.
     SHOW con_id
 
+SELECT INSTANCE_NUMBER
+     , INSTANCE_NAME
+     , HOST_NAME
+FROM V$INSTANCE;
+
+
 # View "v$database"que conten todas as Database do serviço conectado.
     SELECT name, cdb, con_id FROM v$database;
     NAME        CDB    CON_ID
