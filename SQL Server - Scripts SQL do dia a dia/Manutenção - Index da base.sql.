@@ -1,9 +1,0 @@
-SELECT S.name AS 'Schema'
-     , A.name AS 'Tabela'
-	 , coalesce(I.name,'heap') AS 'Index_name'
-	 , E.[name]  AS [FileGroup]
-	 , I.type_desc 'Type_index'
-FROM  sys.objects A
-INNER JOIN sys.schemas S on S.schema_id = A.schema_id
-INNER JOIN sys.indexes I on I.object_id = A.object_id
-INNER JOIN sys.data_spaces E on E.data_space_id = I.data_space_id
