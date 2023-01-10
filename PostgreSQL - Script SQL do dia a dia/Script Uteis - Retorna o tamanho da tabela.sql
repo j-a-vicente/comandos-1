@@ -19,3 +19,12 @@ where t.table_schema in('acl','client','criminal','extrator','jt','prublic')
   --and t.table_type = 'BASE TABLE'
 order by t.table_catalog
      , t.table_schema, t.table_name
+
+
+select pg_database_size('database_name');
+
+
+     SELECT
+    pg_size_pretty (
+        pg_database_size ('dvdrental')
+    );
