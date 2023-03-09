@@ -1,3 +1,11 @@
+
+
+
+
+
+
+
+
 --Lista as Sequences
 SELECT 
   sequences.sequence_catalog, 
@@ -63,3 +71,6 @@ AS $function$
 
 ALTER FUNCTION public._postgis_selectivity(regclass, text, geometry, text)
   OWNER TO mapasculturaisdev;
+
+
+---------------------------------------------------
