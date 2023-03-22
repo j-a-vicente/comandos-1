@@ -1,0 +1,1 @@
+ALTER DATABASE pje_teste SET search_path TO client, core, jt, criminal, public, acl
