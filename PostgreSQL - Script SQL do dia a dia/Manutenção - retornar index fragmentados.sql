@@ -1,4 +1,4 @@
--- WARNING: executed with a non-superuser role, the query inspect only index on tables you are granted to read.
+-- AVISO: executada com uma função não superusuária, a consulta inspeciona apenas o índice nas tabelas que você pode ler.
 SELECT current_database(), nspname AS schemaname, c.relname AS tablename, indexname, bs*(sub.relpages)::bigint AS real_size,
   bs*otta::bigint as estimated_size,
   bs*(sub.relpages-otta)::bigint                                     AS bloat_size,
