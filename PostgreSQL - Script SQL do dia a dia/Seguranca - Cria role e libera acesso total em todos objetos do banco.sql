@@ -127,7 +127,15 @@ BEGIN
 			EXECUTE query;
 
 		END LOOP;
+	-- materialized 
+		FOR B IN SELECT schemaname, matviewname from pg_matviews
 
+		LOOP
+			query = 'GRANT ALL ON TABLE ' || B.schemaname ||'.'||B.matviewname ||' TO '|| nmRole ||';';
+			--RAISE NOTICE '%', query; 
+			EXECUTE query;
+
+		END LOOP;
 	-- Outros acesso.
 		query = 'GRANT INSERT, UPDATE, DELETE, SELECT ON TABLE schema_version TO '|| nmRole ||';';
 		EXECUTE query;		
