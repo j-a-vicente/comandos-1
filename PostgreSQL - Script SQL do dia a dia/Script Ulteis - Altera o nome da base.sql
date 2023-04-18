@@ -8,7 +8,7 @@ DECLARE
 	B RECORD;
 	query text;
 BEGIN
-	FOR B IN select * from pg_stat_activity WHERE datname = 'pje_02032023'
+	FOR B IN select * from pg_stat_activity WHERE datname ilike 'pje_02032023'
 	LOOP
 		query = 'select pg_terminate_backend(' ||B.pid ||');';
 		--RAISE NOTICE '%', query; 
