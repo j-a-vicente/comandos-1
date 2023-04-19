@@ -106,6 +106,15 @@ BEGIN
 
 		END LOOP;
 
+	-- materialized 
+		FOR B IN SELECT schemaname, matviewname from pg_matviews
+
+		LOOP
+			query = 'REVOKE ALL ON TABLE ' || B.schemaname ||'.'||B.matviewname ||' TO '|| nmRole ||';';
+			--RAISE NOTICE '%', query; 
+			EXECUTE query;
+        END LOOP;
+		
 -- Outros acesso.
 		query = 'REVOKE ALL ON TABLE schema_version FROM '|| nmRole ||';';
 		EXECUTE query;
