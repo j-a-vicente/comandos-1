@@ -110,7 +110,7 @@ BEGIN
 		FOR B IN SELECT schemaname, matviewname from pg_matviews
 
 		LOOP
-			query = 'REVOKE ALL ON TABLE ' || B.schemaname ||'.'||B.matviewname ||' TO '|| nmRole ||';';
+			query = 'REVOKE ALL ON TABLE ' || B.schemaname ||'.'||B.matviewname ||' FROM '|| nmRole ||';';
 			--RAISE NOTICE '%', query; 
 			EXECUTE query;
         END LOOP;
