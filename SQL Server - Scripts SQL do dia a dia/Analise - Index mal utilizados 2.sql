@@ -15,3 +15,4 @@ WHERE OBJECTPROPERTY(s.[object_id], 'IsUserTable') = 1
 ORDER BY OBJECT_NAME(s.[object_id]) 
        , writes DESC 
        , reads DESC;
+       
