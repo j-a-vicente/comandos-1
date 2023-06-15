@@ -122,7 +122,7 @@ BEGIN
 				   WHERE sequence_schema not like 'information_schema'
 					 and sequence_schema not like 'pg%'
 		LOOP
-			query = 'GRANT USAGE ON SEQUENCE ' ||B.sequence_schema ||'.'||B.sequence_name ||' TO '|| nmRole ||';';
+			query = 'GRANT ALL ON SEQUENCE ' ||B.sequence_schema ||'.'||B.sequence_name ||' TO '|| nmRole ||';';
 			--RAISE NOTICE '%', query; 
 			EXECUTE query;
 
