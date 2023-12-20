@@ -1,3 +1,6 @@
+netstat -tulpn
+
+
 #Configurar proxy:
   #Sem autenticação:
      https_proxy=http://proxy.incolume.com.br:3128
